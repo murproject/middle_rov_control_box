@@ -33,8 +33,9 @@
 #define VERTICAL_MOTOR_Y_COMMAND 4
 #define VERTICAL_MOTOR_X_COMMAND 5
 #define MANIPULATOR_COMMAND 6
-#define CRC_COMMAND 7
-#define COMMAND_BUFFER_SIZE 8
+#define CAMERA_COMMAND 7
+#define CRC_COMMAND 8
+#define COMMAND_BUFFER_SIZE 9
 
 
 
@@ -68,22 +69,39 @@ void loop() {
 	uint8_t buffer[COMMAND_BUFFER_SIZE] = { EMPTY_COMMAND };
 
 	ps2x.read_gamepad(false, vibrate);
+
 	buffer[START_HIGH_BYTE_COMMAND] = START_HIGH_BYTE;
 	buffer[START_LOW_BYTE_COMMAND] = START_LOW_BYTE;
 	buffer[HORIZONTAL_MOTOR_Y_COMMAND] = ps2x.Analog(PSS_LY);
 	buffer[HORIZONTAL_MOTOR_X_COMMAND] = ps2x.Analog(PSS_LX);
 	buffer[VERTICAL_MOTOR_Y_COMMAND] = ps2x.Analog(PSS_RY);
 	buffer[VERTICAL_MOTOR_X_COMMAND] = ps2x.Analog(PSS_RX);
+
 	if (ps2x.Button(PSB_L2)) {
 		buffer[MANIPULATOR_COMMAND] = RELEASE;
 	}
 	if (ps2x.Button(PSB_R2)) {
 		buffer[MANIPULATOR_COMMAND] = GRAB;
 	}
+
+	if (ps2x.Button(PSB_L1)) {
+		buffer[CAMERA_COMMAND] = 1;
+	}
+	if (ps2x.Button(PSB_R1)) {
+		buffer[CAMERA_COMMAND] = -1;
+	}
+ 
 	buffer[CRC_COMMAND] = crc::calculate_crc(buffer, COMMAND_BUFFER_SIZE - 1);
+
+	if((buffer[HORIZONTAL_MOTOR_Y_COMMAND] + buffer[HORIZONTAL_MOTOR_X_COMMAND] +  
+		buffer[VERTICAL_MOTOR_Y_COMMAND] + buffer[VERTICAL_MOTOR_X_COMMAND]) == (255 + 255 + 255 + 255)) {
+		return;
+	}
+  
 	Serial2.write(buffer, COMMAND_BUFFER_SIZE);
 	delay(5);
-#ifdef DEBUG
-	print_debug_info(buffer);
-#endif
+ #ifdef DEBUG
+   print_debug_info(buffer);
+  #endif
+
 }

@@ -59,10 +59,12 @@ void print_debug_info(uint8_t *data) {
 
     DEBUG_PORT.print("MANIPULATOR\tVALUE:");
     DEBUG_PORT.println(data[6], DEC);
+	DEBUG_PORT.print("CAMERAS\tVALUE:");
+	DEBUG_PORT.println(data[7], DEC);
     DEBUG_PORT.println("----------------");
 
     DEBUG_PORT.print("CRC\tVALUE:");
-    DEBUG_PORT.println(data[7], DEC);
+    DEBUG_PORT.println(data[8], DEC);
     DEBUG_PORT.println("----------------");
 
 }
